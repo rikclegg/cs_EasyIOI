@@ -30,7 +30,7 @@ namespace com.bloomberg.ioiapi.samples
 
         private string handle;
         private IOIs iois;
-        private Fields fields;
+        internal Fields fields;
 
         List<NotificationHandler> notificationHandlers = new List<NotificationHandler>();
 
@@ -52,6 +52,11 @@ namespace com.bloomberg.ioiapi.samples
             return this.handle;
         }
 
+        public void SetHandle(string newHandle)
+        {
+            this.handle = newHandle;
+        }
+
         public IOIs GetIOIs()
         {
             return this.iois;
@@ -71,7 +76,7 @@ namespace com.bloomberg.ioiapi.samples
         {
             if (this.notificationHandlers.Count > 0)
             {
-                Notification n = new Notification(NotificationCategory.IOIDATA, NotificationType.UPDATE, this.fields.ioi);
+                Notification n = new Notification(NotificationCategory.IOIDATA, NotificationType.REPLACE, this);
                 foreach (NotificationHandler nh in notificationHandlers)
                 {
                     if (!n.consume) nh.ProcessNotification(n);

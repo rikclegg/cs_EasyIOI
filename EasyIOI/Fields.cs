@@ -39,36 +39,11 @@ namespace com.bloomberg.ioiapi.samples
             this.ioi = ioi;
         }
 
-        internal void PopulateFields(Message message)
+        internal Field addField(string name, string value)
         {
-
-            Log.LogMessage(LogLevels.DETAILED, "Populate fields");
-            Log.LogMessage(LogLevels.DETAILED, "Source: " + message.ToString());
-
-            CurrentToOldValues();
-
-            int fieldCount = message.NumElements;
-
-            Element e = message.AsElement;
-
-            for (int i = 0; i < fieldCount; i++)
-            {
-
-                Element f = e.GetElement(i);
-
-                String fieldName = f.Name.ToString();
-
-                Field fd = field(fieldName);
-
-                if (fd == null) fd = new Field(this);
-
-                fd.SetName(fieldName);
-
-                if (!f.IsNull) fd.SetCurrentValue(f.GetValueAsString());
-                else fd.SetCurrentValue("");
-
-                Log.LogMessage(LogLevels.DETAILED, "Setting field: " + fd.Name() + "\tvalue: " + fd.Value());
-            }
+            Field f =  new Field(this,name, value);
+            fields.Add(f);
+            return f;
 
         }
 

@@ -35,7 +35,8 @@ namespace com.bloomberg.ioiapi.samples
         public enum NotificationType
         {
             NEW,
-            UPDATE,
+            REPLACE,
+            CANCEL,
             ERROR
         }
 

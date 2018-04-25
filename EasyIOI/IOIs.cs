@@ -27,12 +27,14 @@ using static com.bloomberg.ioiapi.samples.Log;
 namespace com.bloomberg.ioiapi.samples
 {
 
-    public class IOIs : IEnumerable<IOI>, NotificationHandler, MessageHandler
+    public class IOIs : IEnumerable<IOI>, MessageHandler
     {
 
         internal EasyIOI easyIOI;
 
         private List<IOI> iois = new List<IOI>();
+
+        // Would use dictionary with handle as key, but update causes handle to change. 
         List<NotificationHandler> notificationHandlers = new List<NotificationHandler>();
 
         internal IOIs(EasyIOI easyIOI)
@@ -70,17 +72,63 @@ namespace com.bloomberg.ioiapi.samples
             notificationHandlers.Add(notificationHandler);
         }
 
-        public void ProcessNotification(Notification notification)
-        {
-            foreach (NotificationHandler nh in notificationHandlers)
-            {
-                if (!notification.consume) nh.ProcessNotification(notification);
-            }
-        }
-
         public void handleMessage(Message message)
         {
-            
+
+            Element msg = message.AsElement;
+
+            String change = msg.GetElementAsString("change");
+            String handle = msg.GetElementAsString("id_value");
+            String original = msg.GetElementAsString("originalId_value");
+
+            IOI ioi=null;
+            Notification.NotificationType nt= Notification.NotificationType.NEW;
+
+            if (change == "Replace" || change == "Cancel")
+            {
+                // use originalId_value to locate existing ioi and update it, including setting the handle from id_value
+                ioi = this.Get(original);
+
+                if (change == "Replace") nt = Notification.NotificationType.REPLACE;
+                else nt = Notification.NotificationType.CANCEL;
+
+            }
+
+            if (ioi==null)
+            {
+                // new incoming IOI. Create the ioi object and set the handle from id_value
+                ioi = new IOI(this, handle);
+                iois.Add(ioi);
+
+                nt = Notification.NotificationType.NEW;
+
+            } else {
+                ioi.SetHandle(handle);
+                ioi.fields.CurrentToOldValues();
+            }
+
+            for(int i = 0; i < msg.NumElements; i++)
+            {
+                Element e = msg.GetElement(i);
+
+                String fieldName = e.Name.ToString();
+                String fieldValue = e.GetValueAsString();
+
+                Field f = ioi.field(fieldName);
+                if(f==null)
+                {
+                    f = ioi.fields.addField(fieldName, fieldValue);
+                } else
+                {
+                    f.SetCurrentValue(fieldValue);
+                }
+            }
+
+            // send notifications
+            foreach(NotificationHandler nh in this.notificationHandlers)
+            {
+                nh.ProcessNotification(new samples.Notification(Notification.NotificationCategory.IOIDATA, nt, ioi));
+            }
         }
     }
 }

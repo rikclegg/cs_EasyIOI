@@ -79,7 +79,6 @@ namespace com.bloomberg.ioiapi.samples
         {
             this.host = "localhost";
             this.port = 8194;
-            Log.logPrefix = "EasyIOI";
             initialise();
         }
 
@@ -92,6 +91,8 @@ namespace com.bloomberg.ioiapi.samples
 
         private void initialise()
         {
+
+            Log.logPrefix = "EasyIOI";
 
             this.iois = new IOIs(this);
 
@@ -324,7 +325,7 @@ namespace com.bloomberg.ioiapi.samples
 
         public Request createRequest(string requestType)
         {
-            return this.refService.CreateRequest(requestType);
+            return this.ioiReqService.CreateRequest(requestType);
         }
     }
 }
