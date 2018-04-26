@@ -34,7 +34,6 @@ namespace com.bloomberg.ioiapi.samples
 
         private List<IOI> iois = new List<IOI>();
 
-        // Would use dictionary with handle as key, but update causes handle to change. 
         List<NotificationHandler> notificationHandlers = new List<NotificationHandler>();
 
         internal IOIs(EasyIOI easyIOI)
@@ -77,11 +76,29 @@ namespace com.bloomberg.ioiapi.samples
 
             Element msg = message.AsElement;
 
-            String change = msg.GetElementAsString("change");
-            String handle = msg.GetElementAsString("id_value");
+            // Extract originalId_value from IOI message. For NEW, original and id_value will
+            // be the same. For REPLACE or CANCEL, these values differ.
+
             String original = msg.GetElementAsString("originalId_value");
 
-            IOI ioi=null;
+            IOI ioi = null;
+
+            ioi = this.Get(original);
+
+            if (ioi == null)
+            {
+                // unknown incoming IOI. Create the ioi object and set the handle from id_value
+                ioi = new IOI(this, original);
+                iois.Add(ioi);
+            }
+
+            ioi.populateFields(message);
+
+            this.notify(ioi);
+        }
+                String change = msg.GetElementAsString("change");
+            String handle = msg.GetElementAsString("id_value");
+
             Notification.NotificationType nt= Notification.NotificationType.NEW;
 
             if (change == "Replace" || change == "Cancel")
