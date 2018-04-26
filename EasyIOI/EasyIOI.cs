@@ -260,8 +260,18 @@ namespace com.bloomberg.ioiapi.samples
 
             foreach (Message msg in evt)
             {
-                // process the incoming market data event
-                subscriptionMessageHandlers[msg.CorrelationID].handleMessage(msg);
+
+                Log.LogMessage(LogLevels.DETAILED, "Looking for handler : " + msg.CorrelationID.ToString());
+
+                if (subscriptionMessageHandlers.ContainsKey(msg.CorrelationID))
+                {
+                    Log.LogMessage(LogLevels.DETAILED, "Message handler found: " + msg.CorrelationID.ToString());
+                    // process the incoming market data event
+                    subscriptionMessageHandlers[msg.CorrelationID].handleMessage(msg);
+                } else
+                {
+                    Log.LogMessage(LogLevels.DETAILED, "Failed to find message handler for: " + msg.CorrelationID.ToString());
+                }
             }
         }
 
@@ -283,7 +293,7 @@ namespace com.bloomberg.ioiapi.samples
 
             CorrelationID cID = new CorrelationID();
 
-            Subscription newSubscription = new Subscription(ioiSubService + "/ioi");
+            Subscription newSubscription = new Subscription(IOISUBDATA_SERVICE + "/ioi", cID);
 
             Log.LogMessage(LogLevels.DETAILED, "Topic string: " + newSubscription.SubscriptionString);
 
@@ -292,6 +302,9 @@ namespace com.bloomberg.ioiapi.samples
             newSubList.Add(newSubscription);
 
             subscriptionMessageHandlers.Add(cID, this.iois);
+
+            Log.LogMessage(LogLevels.DETAILED, "Added new IOIs message handler: " + cID.ToString());
+
 
             try
             {

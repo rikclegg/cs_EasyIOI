@@ -96,18 +96,5 @@ namespace com.bloomberg.ioiapi.samples
                 }
             }
         }
-
-        internal void sendNotifications()
-        {
-            if (this.notificationHandlers.Count > 0)
-            {
-                Notification n = new Notification(NotificationCategory.IOIDATA, NotificationType.REPLACE, this);
-                foreach (NotificationHandler nh in notificationHandlers)
-                {
-                    if (!n.consume) nh.ProcessNotification(n);
-                }
-                if (!n.consume) iois.ProcessNotification(n);
-            }
-        }
     }
 }
