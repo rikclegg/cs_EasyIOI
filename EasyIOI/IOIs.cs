@@ -80,6 +80,7 @@ namespace com.bloomberg.ioiapi.samples
             // be the same. For REPLACE or CANCEL, these values differ.
 
             String original = msg.GetElementAsString("originalId_value");
+            String change = msg.GetElementAsString("change");
 
             IOI ioi = null;
 
@@ -92,59 +93,20 @@ namespace com.bloomberg.ioiapi.samples
                 iois.Add(ioi);
             }
 
-            ioi.populateFields(message);
+            ioi.populateFields(msg);
 
-            this.notify(ioi);
+            Notification.NotificationType nt = Notification.NotificationType.NEW;
+            if(change=="REPLACE") nt = Notification.NotificationType.REPLACE;
+            else if (change == "CANCEL") nt = Notification.NotificationType.CANCEL;
+
+            this.notify(ioi, nt);
         }
-                String change = msg.GetElementAsString("change");
-            String handle = msg.GetElementAsString("id_value");
 
-            Notification.NotificationType nt= Notification.NotificationType.NEW;
-
-            if (change == "Replace" || change == "Cancel")
-            {
-                // use originalId_value to locate existing ioi and update it, including setting the handle from id_value
-                ioi = this.Get(original);
-
-                if (change == "Replace") nt = Notification.NotificationType.REPLACE;
-                else nt = Notification.NotificationType.CANCEL;
-
-            }
-
-            if (ioi==null)
-            {
-                // new incoming IOI. Create the ioi object and set the handle from id_value
-                ioi = new IOI(this, handle);
-                iois.Add(ioi);
-
-                nt = Notification.NotificationType.NEW;
-
-            } else {
-                ioi.SetHandle(handle);
-                ioi.fields.CurrentToOldValues();
-            }
-
-            for(int i = 0; i < msg.NumElements; i++)
-            {
-                Element e = msg.GetElement(i);
-
-                String fieldName = e.Name.ToString();
-                String fieldValue = e.GetValueAsString();
-
-                Field f = ioi.field(fieldName);
-                if(f==null)
-                {
-                    f = ioi.fields.addField(fieldName, fieldValue);
-                } else
-                {
-                    f.SetCurrentValue(fieldValue);
-                }
-            }
-
-            // send notifications
+        internal void notify(IOI ioi, Notification.NotificationType nt)
+        {
             foreach(NotificationHandler nh in this.notificationHandlers)
             {
-                nh.ProcessNotification(new samples.Notification(Notification.NotificationCategory.IOIDATA, nt, ioi));
+                nh.ProcessNotification(new Notification(Notification.NotificationCategory.IOIDATA, nt, ioi));
             }
         }
     }

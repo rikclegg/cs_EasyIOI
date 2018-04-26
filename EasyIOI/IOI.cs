@@ -72,6 +72,31 @@ namespace com.bloomberg.ioiapi.samples
             notificationHandlers.Add(notificationHandler);
         }
 
+        internal void populateFields(Element msg)
+        {
+
+            for (int i = 0; i < msg.NumElements; i++)
+            {
+                Element e = msg.GetElement(i);
+
+                string fieldName = e.Name.ToString();
+                string fieldValue = e.GetValueAsString();
+
+                Field f = this.fields.field(fieldName);
+
+                if (f == null)
+                {
+                    f = this.fields.addField(fieldName, fieldValue);
+
+                }
+                else
+                {
+                    f.CurrentToOld();
+                    f.SetCurrentValue(fieldValue);
+                }
+            }
+        }
+
         internal void sendNotifications()
         {
             if (this.notificationHandlers.Count > 0)

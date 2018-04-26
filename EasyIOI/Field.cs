@@ -56,6 +56,11 @@ namespace com.bloomberg.ioiapi.samples
             return this.current_value;
         }
 
+        public string previousValue()
+        {
+            return this.old_value;
+        }
+
         internal void SetName(string name)
         {
             this._name = name;
