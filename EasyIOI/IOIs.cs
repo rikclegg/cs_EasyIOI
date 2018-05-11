@@ -57,11 +57,11 @@ namespace com.bloomberg.ioiapi.samples
             return iois[index];
         }
 
-        public IOI Get(string handle)
+        public IOI Get(string id)
         {
             foreach (IOI ioi in iois)
             {
-                if (ioi.GetHandle().Equals(handle)) return ioi;
+                if (ioi.GetID().Equals(id)) return ioi;
             }
             return null;
         }
@@ -88,7 +88,7 @@ namespace com.bloomberg.ioiapi.samples
 
             if (ioi == null)
             {
-                // unknown incoming IOI. Create the ioi object and set the handle from id_value
+                // unknown incoming IOI. Create the ioi object and set the id from id_value
                 ioi = new IOI(this, original);
                 iois.Add(ioi);
             }

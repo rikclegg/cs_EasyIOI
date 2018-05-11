@@ -28,7 +28,7 @@ namespace com.bloomberg.ioiapi.samples
     public class IOI
     {
 
-        private string handle;
+        private string id;
         private IOIs iois;
         internal Fields fields;
 
@@ -40,21 +40,21 @@ namespace com.bloomberg.ioiapi.samples
             this.fields = new Fields(this);
         }
 
-        internal IOI(IOIs iois, string handle)
+        internal IOI(IOIs iois, string id)
         {
             this.iois = iois;
-            this.handle = handle;
+            this.id = id;
             this.fields = new Fields(this);
         }
 
-        public string GetHandle()
+        public string GetID()
         {
-            return this.handle;
+            return this.id;
         }
 
-        public void SetHandle(string newHandle)
+        public void SetID(string newID)
         {
-            this.handle = newHandle;
+            this.id = newID;
         }
 
         public IOIs GetIOIs()
